@@ -1,9 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wumvi\Classes\Db\Fetch;
+namespace Core\Db\Fetch;
 
-use Wumvi\Classes\Db\Common\FetchAbstract;
+use Core\Db\Common\FetchAbstract;
 
 /**
  * Featch для SQLite
@@ -30,7 +30,7 @@ class SQLiteFetch extends FetchAbstract
     /**
      * @inheritdoc
      */
-    public function fetchAll() : array
+    public function fetchAll($isCursor = false) : array
     {
         $dataArray = [];
         while ($res = $this->result->fetchArray(SQLITE3_ASSOC)) {
@@ -47,7 +47,7 @@ class SQLiteFetch extends FetchAbstract
     /**
      * @inheritdoc
      */
-    public function fetchFirst() : array
+    public function fetchFirst($isCursor = false) : array
     {
         $array = $this->result->fetchArray(SQLITE3_ASSOC);
         return $array ?: [];

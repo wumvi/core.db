@@ -1,10 +1,12 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wumvi\Classes\Db\Common;
+namespace Core\Db\Common;
 
 /**
  * Интерфейс для реализации драйвера БД
+ *
+ * @codeCoverageIgnore
  */
 interface DriverInterface
 {

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Wumvi\Classes\Db\Common;
+namespace Core\Db\Common;
 
-use Wumvi\Classes\Read;
+use Core\Db\Exception\DbException;
 
 /**
  * Абстрактный интерфейс для фетча
@@ -15,29 +15,31 @@ abstract class FetchAbstract implements FetchInterface
 
     /**
      * Преобразовывываем переменную к заданному типу
+     *
      * @param mixed $value Переменная
-     * @param int $type Тип переменной см Read::TYPE_*
+     * @param int   $type Тип переменной см Fields::TYPE_*
+     *
      * @return mixed
      */
     protected function convertType($value, int $type)
     {
         switch ($type) {
-            case Read::TYPE_INT:
+            case Fields::TYPE_INT:
                 return (int)$value;
-            case Read::TYPE_FLOAT:
+            case Fields::TYPE_FLOAT:
                 return (float)$value;
-            case Read::TYPE_BOOL:
+            case Fields::TYPE_BOOL:
                 return is_numeric($value) ? (bool)$value : $value === 't';
-            case Read::TYPE_DATE:
+            case Fields::TYPE_DATE:
                 return strtotime($value);
-            case Read::TYPE_UNIXTIME:
+            case Fields::TYPE_UNIXTIME:
                 $date = new \DateTime();
-                $date->setTimestamp((int) $value);
+                $date->setTimestamp((int)$value);
+
                 return $date;
-                break;
-            case Read::TYPE_STRING:
+            case Fields::TYPE_STRING:
                 return $value ? trim($value) : '';
-            case Read::TYPE_ARRAY:
+            case Fields::TYPE_ARRAY:
                 return $value;
             default:
                 return $value;
@@ -46,9 +48,12 @@ abstract class FetchAbstract implements FetchInterface
 
     /**
      * Обрабатываем меппинг данных
+     *
      * @param array $data Данные
+     *
      * @return array Результирующий массив
-     * @throws \Exception
+     *
+     * @throws DbException
      */
     protected function makeMapping(array $data): array
     {
@@ -61,16 +66,17 @@ abstract class FetchAbstract implements FetchInterface
             $dataTmp = [];
             $keyId = null;
             foreach ($this->mappingList as $mapKey => $mapItem) {
-                $name = $mapItem[Read::ARRAY_FIELD_NAME];
-                $type = $mapItem[Read::ARRAY_TYPE_NAME] ?? Read::TYPE_STRING;
+                $name = $mapItem[Fields::ARRAY_FIELD_NAME];
+                $type = $mapItem[Fields::ARRAY_TYPE_NAME] ?? Fields::TYPE_STRING;
 
                 if (!key_exists($mapKey, $dataItem)) {
-                    throw new \Exception('Item ' . $mapKey . ' not found in ' . var_export($dataItem, true));
+                    $msg = vsprintf('Item "%s" not found in %s',[$mapKey, var_export($dataItem, true)]);
+                    throw new DbException($msg, DbException::WRONG_MAPPING);
                 }
 
                 $dataTmp[$name] = $this->convertType($dataItem[$mapKey], $type);
 
-                if (key_exists(Read::ARRAY_KEY_PK, $mapItem)) {
+                if (key_exists(Fields::ARRAY_KEY_PK, $mapItem)) {
                     $keyId = $dataTmp[$name];
                 }
             }
@@ -87,12 +93,15 @@ abstract class FetchAbstract implements FetchInterface
 
     /**
      * Устанавливаем mapping
-     * @param [] $mapping Меппинг для модели
+     *
+     * @param array $mapping Меппинг для модели
+     *
      * @return FetchAbstract
      */
     public function mappingModel(array $mapping): FetchAbstract
     {
         $this->mappingList = $mapping;
+
         return $this;
     }
 }

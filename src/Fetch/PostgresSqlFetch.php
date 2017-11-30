@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace Wumvi\Classes\Db\Fetch;
+namespace Core\Db\Fetch;
 
-use Wumvi\Classes\Db\Common\FetchAbstract;
-use Wumvi\Classes\Db\Exception\DbBadSqlException;
-use Wumvi\Classes\Db\Exception\DbRaiseException;
+use Core\Db\Common\FetchAbstract;
+use Core\Db\Exception\DbBadSqlException;
+use Core\Db\Exception\DbRaiseException;
 
 /**
  * Class PostgresSqlFetch
- * @package Wumvi\Classes\Db\Fetch
+ * @package Core\Db\Fetch
  */
 class PostgresSqlFetch extends FetchAbstract
 {
@@ -30,26 +30,36 @@ class PostgresSqlFetch extends FetchAbstract
         $this->handle = $handle;
     }
 
+    private function makeSql(int $type, string $sql, int $count = self::UNLIMIT): string
+    {
+        $limit = $count !== self::UNLIMIT ? 'limit ' . $count : '';
+        switch ($type) {
+            case self::TYPE_FUNCTION_QUERY:
+                return vsprintf('select * from %s', [$sql,]);
+            case self::TYPE_FUNCTION_CURSOR:
+                return vsprintf('select %s; fetch all from _result %s;', [$sql, $limit,]);
+            default:
+                return $sql;
+        }
+    }
+
     /**
      * @inheritdoc
      */
-    public function fetchAll($cursor = false): array
+    public function fetchAll(int $type = self::TYPE_FUNCTION_QUERY, int $limit = 0): array
     {
-        if ($cursor) {
-            $sql = 'select ' . $this->sql . '; fetch all from _result;';
-        } else {
-            $sql = 'select * from ' . $this->sql;
-        }
-
+        $sql = $this->makeSql($type, $this->sql, $limit);
         $result = @pg_query($this->handle, $sql);
 
         $errorText = pg_last_error($this->handle);
         if ($errorText) {
-            throw new DbRaiseException($errorText . ' : ' . $sql);
+            $msg = vsprintf('Error to exec sql "%s". %s', [$sql, $errorText,]);
+            throw new DbRaiseException($msg, DbBadSqlException::ERROR_TO_EXEC_SQL);
         }
 
-        if (!$result) {
-            throw new DbBadSqlException();
+        if ($result === FALSE) {
+            $msg = vsprintf('Error to exec sql "%s"', [$sql,]);
+            throw new DbBadSqlException($msg, DbBadSqlException::ERROR_TO_EXEC_SQL);
         }
 
         $data = pg_fetch_all($result);
@@ -57,44 +67,17 @@ class PostgresSqlFetch extends FetchAbstract
             return [];
         }
 
-        if ($this->mappingList) {
-            $data = $this->makeMapping($data);
-        }
-
-        return $data;
+        return $this->mappingList ? $this->makeMapping($data) : $data;
     }
 
     /**
      * @inheritdoc
      */
-    public function fetchFirst($cursor = false): array
+    public function fetchFirst(int $type = self::TYPE_FUNCTION_QUERY): array
     {
-        if ($cursor) {
-            $sql = 'select ' . $this->sql . '; fetch all from _result;';
-        } else {
-            $sql = 'select * from ' . $this->sql . ' limit 1;';
-        }
-        $result = @pg_query($this->handle, $sql);
+        $data = $this->fetchAll($type, 1);
 
-        $errorText = pg_last_error($this->handle);
-        if ($errorText) {
-            throw new DbRaiseException($errorText . ' : ' . $sql);
-        }
-
-        if (!$result) {
-            throw new DbBadSqlException();
-        }
-
-        $data = pg_fetch_array($result, null, PGSQL_ASSOC);
-        if (!$data) {
-            return [];
-        }
-
-        if ($this->mappingList) {
-            return $this->makeMapping([$data])[0];
-        }
-
-        return $data;
+        return $data[0] ?? [];
     }
 
     /**
@@ -104,40 +87,41 @@ class PostgresSqlFetch extends FetchAbstract
      */
     public function call(): void
     {
-        $result = @pg_query($this->handle, 'select ' . $this->sql);
+        $sql = $this->makeSql(self::TYPE_FUNCTION_QUERY, $this->sql, self::UNLIMIT);
+        $result = @pg_query($this->handle, $sql);
 
         $errorText = pg_last_error($this->handle);
         if ($errorText) {
             throw new DbRaiseException($errorText . ' : ' . $this->sql);
         }
 
-        if (!$result) {
-            throw new DbBadSqlException();
+        if ($result === FALSE) {
+            $msg = vsprintf('Error to exec sql "%s"', [$this->sql,]);
+            throw new DbBadSqlException($msg, DbBadSqlException::ERROR_TO_EXEC_SQL);
         }
-    }
 
+    }
 
     /**
      * @inheritdoc
      */
     public function getValue(int $type)
     {
-        $sql = 'select ' . $this->sql . ' as result';
+        $sql = vsprintf('select %s as result limit 1', [$this->sql,]);
         $result = @pg_query($this->handle, $sql);
 
         $errorText = pg_last_error($this->handle);
         if ($errorText) {
-            throw new DbRaiseException($errorText . ' : ' . $sql);
+            $msg = vsprintf('Error to exec sql "%s". %s', [$sql, $errorText,]);
+            throw new DbRaiseException($msg, DbBadSqlException::ERROR_TO_EXEC_SQL);
         }
 
-        if (!$result) {
-            throw new DbBadSqlException();
+        if ($result === FALSE) {
+            $msg = vsprintf('Error to exec sql "%s"', [$sql,]);
+            throw new DbBadSqlException($msg, DbBadSqlException::ERROR_TO_EXEC_SQL);
         }
 
         $data = pg_fetch_object($result);
-        if (!$data) {
-            return null;
-        }
 
         return $this->convertType($data->result, $type);
     }

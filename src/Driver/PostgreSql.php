@@ -1,13 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace Wumvi\Classes\Db\Driver;
+namespace Core\Db\Driver;
 
-use Wumvi\Classes\Db\Common\DriverInterface;
-use Wumvi\Classes\Db\Common\FetchAbstract;
-use Wumvi\Classes\Db\Exception\DbConnectionException;
-use Wumvi\Classes\Db\Fetch\PostgresSqlFetch;
-use Wumvi\Classes\Db\Model\PostgreSqlDbParam;
+use Core\Db\Common\DriverInterface;
+use Core\Db\Common\FetchAbstract;
+use Core\Db\Exception\DbConnectionException;
+use Core\Db\Fetch\PostgresSqlFetch;
+use Core\Db\Model\PostgreSqlDbParam;
+USE Core\Db\Exception\DbException;
 
 /**
  * Реализация драйвера для Postresql
@@ -29,15 +30,15 @@ class PostgreSql implements DriverInterface
         $params = [
             'host' => $dbInfo->getHost(),
             'port' => $dbInfo->getPort(),
-            'dbname' => $dbInfo->getDb(),
+            'dbname' => $dbInfo->getDbName(),
             'user' => $dbInfo->getUser(),
-            'password' => $dbInfo->getPwd(),
+            'password' => $dbInfo->getPassword(),
         ];
         $url = http_build_query($params, '', ' ') . ' options=\'--client_encoding=UTF8\' connect_timeout=5';
         $this->handle = @pg_connect($url);
-        if (!$this->handle) {
+        if ($this->handle === FALSE) {
             $msg = sprintf('Unable to connect to PostgreSQL server %s:%s', $dbInfo->getHost(), $dbInfo->getPort());
-            throw new DbConnectionException($msg);
+            throw new DbConnectionException($msg, DbConnectionException::CAN_NOT_CONNECT_TO_DB);
         }
     }
 
@@ -56,16 +57,15 @@ class PostgreSql implements DriverInterface
      */
     public function exec(string $funcName, array $bindPair = []): FetchAbstract
     {
-        return new PostgresSqlFetch(
-            $this->makeClearSql($funcName, $bindPair),
-            $this->handle
-        );
+        return new PostgresSqlFetch($this->makeClearSql($funcName, $bindPair), $this->handle);
     }
 
     /**
      * Составляет SQL вызова функции и bind-ит переменные
+     *
      * @param string $funcName название фукнции
-     * @param array $bindPair Массив переменных
+     * @param array  $bindPair Массив переменных
+     *
      * @return string Sql
      */
     protected function makeClearSql(string $funcName, array $bindPair = []): string
@@ -88,7 +88,14 @@ class PostgreSql implements DriverInterface
         return $sql;
     }
 
-    protected function convertType($value)
+    /**
+     * @param $value
+     *
+     * @return mixed
+     *
+     * @throws DbException
+     */
+    public function convertType($value)
     {
         if (is_array($value)) {
             $data = array_map(function ($item) {
@@ -96,20 +103,28 @@ class PostgreSql implements DriverInterface
             }, $value);
 
             return '[' . implode(',', $data) . ']';
-        } elseif (is_string($value)) {
+        }
+
+        if (is_string($value)) {
             return '\'' . pg_escape_string($value) . '\'';
-        } elseif (is_numeric($value)) {
+        }
+
+        if (is_numeric($value)) {
             if ($value < -2147483648 || 2147483647 < $value) {
                 return $value . '::bigint';
             }
 
             return $value;
-        } elseif ($value === null) {
+        }
+
+        if ($value === null) {
             return 'null';
-        }elseif (is_bool($value)) {
+        }
+
+        if (is_bool($value)) {
             return $value ? 'true' : 'false';
         }
 
-        return $value;
+        throw new DbException('Unsupported type ' . gettype($value), DbException::WRONG_TYPE);
     }
 }

@@ -1,12 +1,12 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wumvi\Classes\Db\Driver;
+namespace Core\Db\Driver;
 
-use Wumvi\Classes\Db\Common\DriverInterface;
-use Wumvi\Classes\Db\Common\FetchAbstract;
-use Wumvi\Classes\Db\Fetch\SQLiteFetch;
-use Wumvi\Classes\Db\Model\SQLite3DbParam;
+use Core\Db\Common\DriverInterface;
+use Core\Db\Common\FetchAbstract;
+use Core\Db\Fetch\SQLiteFetch;
+use Core\Db\Model\SQLite3DbParam;
 
 /**
  * Драйвер для SQLite3

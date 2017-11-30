@@ -1,30 +1,38 @@
 <?php
 declare(strict_types=1);
 
-namespace Wumvi\Classes\Db\Common;
+namespace Core\Db\Common;
 
 /**
  * Интерфейс для фетча
+ *
+ * @codeCoverageIgnore
  */
 interface FetchInterface
 {
+    public const TYPE_FUNCTION_CURSOR = 1;
+    public const TYPE_FUNCTION_QUERY = 2;
+    public const TYPE_SIMPLE_QUERY = 3;
+
+    public const UNLIMIT = -1;
+
     /**
      * Получаем записи
      *
-     * @param bool $isCursor
+     * @param int $type
      *
      * @return array Записи
      */
-    public function fetchAll($isCursor = false): array;
+    public function fetchAll(int $type = self::TYPE_FUNCTION_QUERY): array;
 
     /**
      * Получаем одну запись
      *
-     * @param bool $isCursor
+     * @param int $type
      *
      * @return array Запись
      */
-    public function fetchFirst($isCursor = false): array;
+    public function fetchFirst(int $type = self::TYPE_FUNCTION_QUERY): array;
 
     /**
      * Просто вызов

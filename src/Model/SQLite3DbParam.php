@@ -1,9 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace Wumvi\Classes\Db\Model;
+namespace Core\Db\Model;
 
-use Wumvi\Classes\Read;
+use Core\Model\Read;
 
 /**
  * Модель параметров для БД
