@@ -1,14 +1,11 @@
-language: php
-php:
-  - '7.1'
-  - nightly
+services:
+  - docker
 
 before_script:
-    - travis_retry composer self-update
-    - travis_retry composer install --no-interaction --prefer-source --dev
-
+    - docker run --rm -d -v `pwd`:/www/ --name wumvi.core.db wumvi/www.dev
+    - docker exec wumvi.core.db composer install  --no-interaction --prefer-source --dev
 script:
-    - composer test
+    - docker exec wumvi.core.db composer test
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash)
+    - docker exec wumvi.core.db "bash <(curl -s https://codecov.io/bash)"
