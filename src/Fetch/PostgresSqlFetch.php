@@ -9,18 +9,22 @@ use Core\Db\Exception\DbRaiseException;
 
 /**
  * Class PostgresSqlFetch
- * @package Core\Db\Fetch
  */
 class PostgresSqlFetch extends FetchAbstract
 {
-    /** @var string Sql запрос */
+    /**
+     * @var string Sql запрос
+     */
     private $sql;
 
-    /** @var resource Handle на коннект */
+    /**
+     * @var resource Handle на коннект
+     */
     private $handle;
 
     /**
      * PostgresSqlFetch constructor.
+     *
      * @param string $sql
      * @param resource $handle
      */
@@ -30,6 +34,13 @@ class PostgresSqlFetch extends FetchAbstract
         $this->handle = $handle;
     }
 
+    /**
+     * @param int    $type
+     * @param string $sql
+     * @param int    $count
+     *
+     * @return string
+     */
     private function makeSql(int $type, string $sql, int $count = self::UNLIMIT): string
     {
         $limit = $count !== self::UNLIMIT ? 'limit ' . $count : '';
@@ -57,7 +68,7 @@ class PostgresSqlFetch extends FetchAbstract
             throw new DbRaiseException($msg, DbBadSqlException::ERROR_TO_EXEC_SQL);
         }
 
-        if ($result === FALSE) {
+        if ($result === false) {
             $msg = vsprintf('Error to exec sql "%s"', [$sql,]);
             throw new DbBadSqlException($msg, DbBadSqlException::ERROR_TO_EXEC_SQL);
         }
@@ -82,6 +93,7 @@ class PostgresSqlFetch extends FetchAbstract
 
     /**
      * @inheritdoc
+     *
      * @throws DbBadSqlException
      * @throws DbRaiseException
      */
@@ -95,11 +107,10 @@ class PostgresSqlFetch extends FetchAbstract
             throw new DbRaiseException($errorText . ' : ' . $this->sql);
         }
 
-        if ($result === FALSE) {
+        if ($result === false) {
             $msg = vsprintf('Error to exec sql "%s"', [$this->sql,]);
             throw new DbBadSqlException($msg, DbBadSqlException::ERROR_TO_EXEC_SQL);
         }
-
     }
 
     /**
@@ -116,7 +127,7 @@ class PostgresSqlFetch extends FetchAbstract
             throw new DbRaiseException($msg, DbBadSqlException::ERROR_TO_EXEC_SQL);
         }
 
-        if ($result === FALSE) {
+        if ($result === false) {
             $msg = vsprintf('Error to exec sql "%s"', [$sql,]);
             throw new DbBadSqlException($msg, DbBadSqlException::ERROR_TO_EXEC_SQL);
         }

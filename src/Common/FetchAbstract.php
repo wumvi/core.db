@@ -70,7 +70,7 @@ abstract class FetchAbstract implements FetchInterface
                 $type = $mapItem[Fields::ARRAY_TYPE_NAME] ?? Fields::TYPE_STRING;
 
                 if (!key_exists($mapKey, $dataItem)) {
-                    $msg = vsprintf('Item "%s" not found in %s',[$mapKey, var_export($dataItem, true)]);
+                    $msg = vsprintf('Item "%s" not found in %s', [$mapKey, var_export($dataItem, true)]);
                     throw new DbException($msg, DbException::WRONG_MAPPING);
                 }
 

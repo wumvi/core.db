@@ -129,6 +129,9 @@ class PostgreSqlTest extends TestCase
         $value = $postgreSql->convertType('dd');
         $this->assertEquals($value, "'dd'", 'String');
 
+        $value = $postgreSql->convertType('\'dd');
+        $this->assertEquals($value, "'''dd'", 'Sql injection');
+
         $value = $postgreSql->convertType(1);
         $this->assertEquals($value, 1, 'Number');
 

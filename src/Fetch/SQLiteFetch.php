@@ -30,7 +30,7 @@ class SQLiteFetch extends FetchAbstract
     /**
      * @inheritdoc
      */
-    public function fetchAll($isCursor = false) : array
+    public function fetchAll(int $type = self::TYPE_FUNCTION_QUERY) : array
     {
         $dataArray = [];
         while ($res = $this->result->fetchArray(SQLITE3_ASSOC)) {
@@ -47,9 +47,10 @@ class SQLiteFetch extends FetchAbstract
     /**
      * @inheritdoc
      */
-    public function fetchFirst($isCursor = false) : array
+    public function fetchFirst(int $type = self::TYPE_FUNCTION_QUERY) : array
     {
         $array = $this->result->fetchArray(SQLITE3_ASSOC);
+
         return $array ?: [];
     }
 

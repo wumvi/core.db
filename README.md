@@ -6,7 +6,7 @@
 [![Build status](https://travis-ci.org/wumvi/core.db.svg?branch=master)](https://travis-ci.org/wumvi/core.db)
 [![codecov](https://codecov.io/gh/wumvi/core.db/branch/master/graph/badge.svg)](https://codecov.io/gh/wumvi/core.db)
 
-Базовые модели
+Драйвер работы с БД
 
 ## Install
 

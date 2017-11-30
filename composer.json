@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "name": "wumvi/core.db",
   "description": "Base Db driver",
   "type": "library",
@@ -14,7 +14,10 @@
   },
   "require-dev": {
     "phpunit/phpunit": "*",
-    "squizlabs/php_codesniffer": "*"
+    "squizlabs/php_codesniffer": "*",
+    "phan/phan": "*",
+    "phpstan/phpstan": "*",
+    "overtrue/phplint": "*"
   },
   "config": {
     "secure-http": false
@@ -32,9 +35,17 @@
     "phpunit": [
       "vendor/bin/phpunit"
     ],
+    "phplint": [
+      "vendor/bin/phplint"
+    ],
+    "phpcs": [
+      "vendor/bin/phpcs src --parallel=10 --runtime-set php_version 71000 -p --standard=ruleset.xml"
+    ],
     "test": [
       "@phpstan",
-      "@phpunit"
+      "@phpunit",
+      "@phplint",
+      "@phpcs"
     ]
   }
 }
