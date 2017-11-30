@@ -8,4 +8,4 @@ script:
     - docker exec wumvi.core.db composer test
 
 after_success:
-    - docker exec wumvi.core.db "bash <(curl -s https://codecov.io/bash)"
+    - bash <(curl -s https://codecov.io/bash)
