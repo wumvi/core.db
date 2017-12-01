@@ -23,7 +23,6 @@ abstract class FetchAbstract implements FetchInterface
      */
     protected function convert($value, int $type)
     {
-        $result = $value;
         switch ($type) {
             case FieldsInterface::TYPE_INT:
                 $result = (int)$value;
@@ -69,23 +68,7 @@ abstract class FetchAbstract implements FetchInterface
 
         $result = [];
         foreach ($data as $dataItem) {
-            $dataTmp = [];
-            $keyId = null;
-            foreach ($this->mappingList as $mapKey => $mapItem) {
-                $name = $mapItem[FieldsInterface::ARRAY_NAME];
-                $type = $mapItem[FieldsInterface::ARRAY_TYPE] ?? FieldsInterface::TYPE_STRING;
-
-                if (!key_exists($mapKey, $dataItem)) {
-                    $msg = vsprintf('Item "%s" not found in %s', [$mapKey, var_export($dataItem, true)]);
-                    throw new DbException($msg, DbException::WRONG_MAPPING);
-                }
-
-                $dataTmp[$name] = $this->convert($dataItem[$mapKey], $type);
-
-                if (key_exists(FieldsInterface::ARRAY_KEY_PK, $mapItem)) {
-                    $keyId = $dataTmp[$name];
-                }
-            }
+            list($keyId, $dataTmp) = $this->getKeyValue($dataItem);
 
             if ($keyId === null) {
                 $result[] = $dataTmp;
@@ -95,6 +78,37 @@ abstract class FetchAbstract implements FetchInterface
         }
 
         return $result;
+    }
+
+    /**
+     * @param array $dataItem
+     *
+     * @return array
+     *
+     * @throws DbException
+     */
+    private function getKeyValue(array $dataItem): array
+    {
+        $result = [];
+        $keyId = null;
+
+        foreach ($this->mappingList as $mapKey => $mapItem) {
+            $name = $mapItem[FieldsInterface::ARRAY_NAME];
+            $type = $mapItem[FieldsInterface::ARRAY_TYPE] ?? FieldsInterface::TYPE_STRING;
+
+            if (!key_exists($mapKey, $dataItem)) {
+                $msg = vsprintf('Item "%s" not found in %s', [$mapKey, var_export($dataItem, true),]);
+                throw new DbException($msg, DbException::WRONG_MAPPING);
+            }
+
+            $result[$name] = $this->convert($dataItem[$mapKey], $type);
+
+            if (key_exists(FieldsInterface::ARRAY_KEY_PK, $mapItem)) {
+                $keyId = $result[$name];
+            }
+        }
+
+        return [$keyId, $result];
     }
 
     /**
