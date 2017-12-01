@@ -78,7 +78,7 @@ class PostgresSqlFetch extends FetchAbstract
             return [];
         }
 
-        return $this->mappingList ? $this->makeMapping($data) : $data;
+        return $this->mappingList ? $this->rename($data) : $data;
     }
 
     /**
@@ -134,7 +134,7 @@ class PostgresSqlFetch extends FetchAbstract
 
         $data = pg_fetch_object($result);
 
-        return $this->convertType($data->result, $type);
+        return $this->convert($data->result, $type);
     }
 
     /**

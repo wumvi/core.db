@@ -8,7 +8,7 @@ use Core\Db\Common\FetchAbstract;
 /**
  * Featch для SQLite
  */
-class SQLiteFetch extends FetchAbstract
+class SqliteFetch extends FetchAbstract
 {
     /** @var \SQLite3Result Handle на результаты */
     protected $result;
@@ -38,7 +38,7 @@ class SQLiteFetch extends FetchAbstract
         }
 
         if ($this->mappingList) {
-            return $this->makeMapping($dataArray);
+            return $this->rename($dataArray);
         }
 
         return $dataArray;

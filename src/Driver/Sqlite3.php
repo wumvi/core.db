@@ -1,35 +1,43 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Db\Driver;
 
 use Core\Db\Common\DriverInterface;
 use Core\Db\Common\FetchAbstract;
-use Core\Db\Fetch\SQLiteFetch;
-use Core\Db\Model\SQLite3DbParam;
+use Core\Db\Exception\DbException;
+use Core\Db\Fetch\SqliteFetch;
+use Core\Db\Model\Sqlite3DbParam;
 
 /**
  * Драйвер для SQLite3
  */
-class SQLite3 implements DriverInterface
+class Sqlite3 implements DriverInterface
 {
-    /** @var \SQLite3 Handle для SQLite */
+    /**
+     * @var \SQLite3 Handle для SQLite
+     */
     protected $handle;
 
     /**
      * Конструктор
-     * @param SQLite3DbParam $dbInfo Данные для коннекта
+     *
+     * @param Sqlite3DbParam $dbInfo Данные для коннекта
      */
-    public function __construct(SQLite3DbParam $dbInfo)
+    public function __construct(Sqlite3DbParam $dbInfo)
     {
         $this->handle = new \SQLite3($dbInfo->getDb());
     }
 
     /**
      * Делаем любой запрос
+     *
      * @param string $sql SQL запрос
-     * @param array $bind Переменные для подстановки
+     * @param array  $bind Переменные для подстановки
+     *
      * @return FetchAbstract
+     *
+     * @throws DbException
      */
     public function exec(string $sql, array $bind = []): FetchAbstract
     {
@@ -45,15 +53,19 @@ class SQLite3 implements DriverInterface
             $result = $this->handle->query($sql);
         }
 
-        return new SQLiteFetch($sql, $result);
+        return new SqliteFetch($sql, $result);
     }
 
     /**
      * Получаем тип переменной для SQLITE3
+     *
      * @param mixed $arg Переменная
+     *
      * @return int см. SQLITE3_*
+     *
+     * @throws DbException
      */
-    protected function getArgType($arg): int
+    public function getArgType($arg): int
     {
         switch (gettype($arg)) {
             case 'double':
@@ -67,7 +79,8 @@ class SQLite3 implements DriverInterface
             case 'string':
                 return SQLITE3_TEXT;
             default:
-                throw new \InvalidArgumentException('Argument is of invalid type ' . gettype($arg));
+                $msg  = vsprintf('Argument is of invalid type "%s"', [gettype($arg),]);
+                throw new DbException($msg, DbException::WRONG_TYPE);
         }
     }
 }

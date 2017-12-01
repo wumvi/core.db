@@ -116,7 +116,7 @@ class PostgreSqlTest extends TestCase
     }
 
     /**
-     * @covers \Core\Db\Driver\PostgreSql::convertType
+     * @covers \Core\Db\Driver\PostgreSql::convert
      *
      * @throws \Core\Db\Exception\DbException
      */
@@ -126,28 +126,28 @@ class PostgreSqlTest extends TestCase
 
         $postgreSql = new PostgreSql($this->dbInfo);
 
-        $value = $postgreSql->convertType('dd');
+        $value = $postgreSql->convert('dd');
         $this->assertEquals($value, "'dd'", 'String');
 
-        $value = $postgreSql->convertType('\'dd');
+        $value = $postgreSql->convert('\'dd');
         $this->assertEquals($value, "'''dd'", 'Sql injection');
 
-        $value = $postgreSql->convertType(1);
+        $value = $postgreSql->convert(1);
         $this->assertEquals($value, 1, 'Number');
 
-        $value = $postgreSql->convertType(2147483648);
+        $value = $postgreSql->convert(2147483648);
         $this->assertEquals($value, '2147483648::bigint', 'Big number');
 
-        $value = $postgreSql->convertType(null);
+        $value = $postgreSql->convert(null);
         $this->assertEquals($value, 'null', 'Null');
 
-        $value = $postgreSql->convertType(true);
+        $value = $postgreSql->convert(true);
         $this->assertEquals($value, 'true', 'Boolean true');
 
-        $value = $postgreSql->convertType(false);
+        $value = $postgreSql->convert(false);
         $this->assertEquals($value, 'false', 'Boolean false');
 
-        $value = $postgreSql->convertType([1]);
+        $value = $postgreSql->convert([1]);
         $this->assertEquals($value, '[1]', 'Array');
 
         unset($postgreSql, $mockup);
@@ -162,7 +162,7 @@ class PostgreSqlTest extends TestCase
         $postgreSql = new PostgreSql($this->dbInfo);
 
         try {
-            $postgreSql->convertType(function () {
+            $postgreSql->convert(function () {
             });
         } catch (DbException $ex) {
             $this->assertEquals($ex->getCode(), DbException::WRONG_TYPE, 'Wrong Type');

@@ -15,7 +15,7 @@ abstract class Dao
      * Конструктор
      * @param DriverInterface $driver Драйвер
      */
-    public function __construct($driver)
+    public function __construct(DriverInterface $driver)
     {
         $this->driver = $driver;
     }

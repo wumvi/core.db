@@ -77,12 +77,12 @@ class PostgreSql implements DriverInterface
         foreach ($bindPair as $name => $value) {
             if (is_array($value)) {
                 $data = array_map(function ($item) {
-                    return $this->convertType($item);
+                    return $this->convert($item);
                 }, $value);
 
                 $partSql = 'array[' . implode(',', $data) . ']';
             } else {
-                $partSql = $this->convertType($value);
+                $partSql = $this->convert($value);
             }
 
             $sql = str_replace(':' . $name, $partSql, $sql);
@@ -98,11 +98,11 @@ class PostgreSql implements DriverInterface
      *
      * @throws DbException
      */
-    public function convertType($value)
+    public function convert($value)
     {
         if (is_array($value)) {
             $data = array_map(function ($item) {
-                return $this->convertType($item);
+                return $this->convert($item);
             }, $value);
 
             return '[' . implode(',', $data) . ']';

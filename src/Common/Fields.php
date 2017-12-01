@@ -10,10 +10,10 @@ namespace Core\Db\Common;
 interface Fields
 {
     /** Навание поля */
-    const ARRAY_FIELD_NAME = 1;
+    const ARRAY_NAME = 1;
 
     /** Тип поля */
-    const ARRAY_TYPE_NAME = 2;
+    const ARRAY_TYPE = 2;
 
     /** Тип поля это уникальный ключ */
     const ARRAY_KEY_PK = 3;

@@ -9,6 +9,6 @@ use Core\Model\Read;
  * Модель параметров для БД
  * @method string getDb() Имя файла базы данных
  */
-class SQLite3DbParam extends Read
+class Sqlite3DbParam extends Read
 {
 }

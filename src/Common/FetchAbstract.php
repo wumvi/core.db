@@ -17,11 +17,11 @@ abstract class FetchAbstract implements FetchInterface
      * Преобразовывываем переменную к заданному типу
      *
      * @param mixed $value Переменная
-     * @param int   $type Тип переменной см Fields::TYPE_*
+     * @param int $type Тип переменной см Fields::TYPE_*
      *
      * @return mixed
      */
-    protected function convertType($value, int $type)
+    protected function convert($value, int $type)
     {
         switch ($type) {
             case Fields::TYPE_INT:
@@ -55,7 +55,7 @@ abstract class FetchAbstract implements FetchInterface
      *
      * @throws DbException
      */
-    protected function makeMapping(array $data): array
+    protected function rename(array $data): array
     {
         if (!$data) {
             return [];
@@ -66,15 +66,15 @@ abstract class FetchAbstract implements FetchInterface
             $dataTmp = [];
             $keyId = null;
             foreach ($this->mappingList as $mapKey => $mapItem) {
-                $name = $mapItem[Fields::ARRAY_FIELD_NAME];
-                $type = $mapItem[Fields::ARRAY_TYPE_NAME] ?? Fields::TYPE_STRING;
+                $name = $mapItem[Fields::ARRAY_NAME];
+                $type = $mapItem[Fields::ARRAY_TYPE] ?? Fields::TYPE_STRING;
 
                 if (!key_exists($mapKey, $dataItem)) {
                     $msg = vsprintf('Item "%s" not found in %s', [$mapKey, var_export($dataItem, true)]);
                     throw new DbException($msg, DbException::WRONG_MAPPING);
                 }
 
-                $dataTmp[$name] = $this->convertType($dataItem[$mapKey], $type);
+                $dataTmp[$name] = $this->convert($dataItem[$mapKey], $type);
 
                 if (key_exists(Fields::ARRAY_KEY_PK, $mapItem)) {
                     $keyId = $dataTmp[$name];
@@ -98,7 +98,7 @@ abstract class FetchAbstract implements FetchInterface
      *
      * @return FetchAbstract
      */
-    public function mappingModel(array $mapping): FetchAbstract
+    public function mapping(array $mapping): FetchAbstract
     {
         $this->mappingList = $mapping;
 
