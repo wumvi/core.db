@@ -7,7 +7,7 @@ namespace Core\Db\Common;
  *
  * @codeCoverageIgnore
  */
-interface Fields
+interface FieldsInterface
 {
     /** Навание поля */
     const ARRAY_NAME = 1;

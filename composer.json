@@ -1,5 +1,4 @@
 {
-  "version": "1.1",
   "name": "wumvi/core.db",
   "description": "Base Db driver",
   "type": "library",
@@ -47,5 +46,6 @@
       "@phplint",
       "@phpcs"
     ]
-  }
+  },
+  "license": "MIT"
 }

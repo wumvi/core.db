@@ -43,7 +43,7 @@ class PostgresSqlFetch extends FetchAbstract
      */
     private function makeSql(int $type, string $sql, int $count = self::UNLIMIT): string
     {
-        $limit = $count !== self::UNLIMIT ? 'limit ' . $count : '';
+        $limit = $count !== self::UNLIMIT ? sprintf('limit %s', $count) : '';
         switch ($type) {
             case self::TYPE_FUNCTION_QUERY:
                 return vsprintf('select * from %s', [$sql,]);
@@ -60,7 +60,7 @@ class PostgresSqlFetch extends FetchAbstract
     public function fetchAll(int $type = self::TYPE_FUNCTION_QUERY, int $limit = 0): array
     {
         $sql = $this->makeSql($type, $this->sql, $limit);
-        $result = @pg_query($this->handle, $sql);
+        $result = pg_query($this->handle, $sql);
 
         $errorText = pg_last_error($this->handle);
         if ($errorText) {
@@ -100,7 +100,7 @@ class PostgresSqlFetch extends FetchAbstract
     public function call(): void
     {
         $sql = $this->makeSql(self::TYPE_FUNCTION_QUERY, $this->sql, self::UNLIMIT);
-        $result = @pg_query($this->handle, $sql);
+        $result = pg_query($this->handle, $sql);
 
         $errorText = pg_last_error($this->handle);
         if ($errorText) {
@@ -119,7 +119,7 @@ class PostgresSqlFetch extends FetchAbstract
     public function getValue(int $type)
     {
         $sql = vsprintf('select %s as result limit 1', [$this->sql,]);
-        $result = @pg_query($this->handle, $sql);
+        $result = pg_query($this->handle, $sql);
 
         $errorText = pg_last_error($this->handle);
         if ($errorText) {

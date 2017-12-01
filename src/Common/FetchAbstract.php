@@ -17,33 +17,39 @@ abstract class FetchAbstract implements FetchInterface
      * Преобразовывываем переменную к заданному типу
      *
      * @param mixed $value Переменная
-     * @param int $type Тип переменной см Fields::TYPE_*
+     * @param int   $type Тип переменной см Fields::TYPE_*
      *
      * @return mixed
      */
     protected function convert($value, int $type)
     {
+        $result = $value;
         switch ($type) {
-            case Fields::TYPE_INT:
-                return (int)$value;
-            case Fields::TYPE_FLOAT:
-                return (float)$value;
-            case Fields::TYPE_BOOL:
-                return is_numeric($value) ? (bool)$value : $value === 't';
-            case Fields::TYPE_DATE:
-                return strtotime($value);
-            case Fields::TYPE_UNIXTIME:
-                $date = new \DateTime();
-                $date->setTimestamp((int)$value);
-
-                return $date;
-            case Fields::TYPE_STRING:
-                return $value ? trim($value) : '';
-            case Fields::TYPE_ARRAY:
-                return $value;
+            case FieldsInterface::TYPE_INT:
+                $result = (int)$value;
+                break;
+            case FieldsInterface::TYPE_FLOAT:
+                $result = (float)$value;
+                break;
+            case FieldsInterface::TYPE_BOOL:
+                $result = is_numeric($value) ? (bool)$value : $value === 't';
+                break;
+            case FieldsInterface::TYPE_DATE:
+                $result = strtotime($value);
+                break;
+            case FieldsInterface::TYPE_UNIXTIME:
+                $result = new \DateTime();
+                $result->setTimestamp((int)$value);
+                break;
+            case FieldsInterface::TYPE_STRING:
+                $result = trim($value);
+                break;
+            case FieldsInterface::TYPE_ARRAY:
             default:
-                return $value;
+                $result = $value;
         }
+
+        return $result;
     }
 
     /**
@@ -66,8 +72,8 @@ abstract class FetchAbstract implements FetchInterface
             $dataTmp = [];
             $keyId = null;
             foreach ($this->mappingList as $mapKey => $mapItem) {
-                $name = $mapItem[Fields::ARRAY_NAME];
-                $type = $mapItem[Fields::ARRAY_TYPE] ?? Fields::TYPE_STRING;
+                $name = $mapItem[FieldsInterface::ARRAY_NAME];
+                $type = $mapItem[FieldsInterface::ARRAY_TYPE] ?? FieldsInterface::TYPE_STRING;
 
                 if (!key_exists($mapKey, $dataItem)) {
                     $msg = vsprintf('Item "%s" not found in %s', [$mapKey, var_export($dataItem, true)]);
@@ -76,7 +82,7 @@ abstract class FetchAbstract implements FetchInterface
 
                 $dataTmp[$name] = $this->convert($dataItem[$mapKey], $type);
 
-                if (key_exists(Fields::ARRAY_KEY_PK, $mapItem)) {
+                if (key_exists(FieldsInterface::ARRAY_KEY_PK, $mapItem)) {
                     $keyId = $dataTmp[$name];
                 }
             }
