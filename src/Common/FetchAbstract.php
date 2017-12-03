@@ -62,10 +62,6 @@ abstract class FetchAbstract implements FetchInterface
      */
     protected function rename(array $data): array
     {
-        if (!$data) {
-            return [];
-        }
-
         $result = [];
         foreach ($data as $dataItem) {
             list($keyId, $dataTmp) = $this->getKeyValue($dataItem);
