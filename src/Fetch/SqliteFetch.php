@@ -37,11 +37,7 @@ class SqliteFetch extends FetchAbstract
             $dataArray[] = $res;
         }
 
-        if ($this->mappingList) {
-            return $this->rename($dataArray);
-        }
-
-        return $dataArray;
+        return $this->mappingList ? $this->rename($dataArray) : $dataArray;
     }
 
     /**
@@ -49,9 +45,7 @@ class SqliteFetch extends FetchAbstract
      */
     public function fetchFirst(int $type = self::TYPE_FUNCTION_QUERY) : array
     {
-        $array = $this->result->fetchArray(SQLITE3_ASSOC);
-
-        return $array ?: [];
+        return $this->result->fetchArray(SQLITE3_ASSOC) ?: [];
     }
 
     /**

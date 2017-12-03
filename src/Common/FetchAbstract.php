@@ -41,7 +41,7 @@ abstract class FetchAbstract implements FetchInterface
                 $result->setTimestamp((int)$value);
                 break;
             case FieldsInterface::TYPE_STRING:
-                $result = trim($value);
+                $result = $value ?? '';
                 break;
             case FieldsInterface::TYPE_ARRAY:
             default:

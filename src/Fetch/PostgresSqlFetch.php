@@ -35,31 +35,37 @@ class PostgresSqlFetch extends FetchAbstract
     }
 
     /**
-     * @param int    $type
+     * @param int $type
      * @param string $sql
-     * @param int    $count
+     * @param int $count
      *
      * @return string
      */
-    private function makeSql(int $type, string $sql, int $count = self::UNLIMIT): string
+    private function makeSql(int $type, string $sql, int $count): string
     {
-        $limit = $count !== self::UNLIMIT ? sprintf('limit %s', $count) : '';
         switch ($type) {
             case self::TYPE_FUNCTION_QUERY:
-                return vsprintf('select * from %s', [$sql,]);
+                $limit = $count !== self::UNLIMIT ? sprintf('limit %s', $count) : '';
+                $result = vsprintf('select * from %s %s', [$sql, $limit,]);
+                break;
             case self::TYPE_FUNCTION_CURSOR:
-                return vsprintf('select %s; fetch all from _result %s;', [$sql, $limit,]);
+                $fetch = $count === self::UNLIMIT ? 'all' : 'FORWARD ' . $count;
+                $result = vsprintf('select %s; fetch %s from _result;', [$sql, $fetch,]);
+                break;
+            case self::TYPE_SIMPLE_QUERY:
             default:
-                return $sql;
+                $result = $sql;
         }
+
+        return $result;
     }
 
     /**
      * @inheritdoc
      */
-    public function fetchAll(int $type = self::TYPE_FUNCTION_QUERY, int $limit = 0): array
+    public function fetchAll(int $type = self::TYPE_FUNCTION_QUERY, int $count = self::UNLIMIT): array
     {
-        $sql = $this->makeSql($type, $this->sql, $limit);
+        $sql = $this->makeSql($type, $this->sql, $count);
         $result = pg_query($this->handle, $sql);
 
         $errorText = pg_last_error($this->handle);
