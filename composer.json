@@ -14,7 +14,6 @@
   "require-dev": {
     "phpunit/phpunit": "*",
     "squizlabs/php_codesniffer": "*",
-    "phan/phan": "*",
     "phpstan/phpstan": "*",
     "overtrue/phplint": "*"
   },
