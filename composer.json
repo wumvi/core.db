@@ -12,10 +12,10 @@
     "wumvi/core.model": "@stable"
   },
   "require-dev": {
-    "phpunit/phpunit": "*",
-    "squizlabs/php_codesniffer": "*",
-    "phpstan/phpstan": "*",
-    "overtrue/phplint": "*"
+    "phpunit/phpunit": "@stable",
+    "squizlabs/php_codesniffer": "@stable",
+    "phpstan/phpstan": "@stable",
+    "overtrue/phplint": "@stable"
   },
   "config": {
     "secure-http": false
