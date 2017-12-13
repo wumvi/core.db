@@ -36,7 +36,12 @@ class PostgreSql implements DriverInterface
         ];
         $url = http_build_query($params, '', ' ');
         $url .= ' options=\'--client_encoding=UTF8\' connect_timeout=5';
+        $pinbaHandle = pinba_timer_start([
+            'type' => 'connect',
+            'db.host' => $dbInfo->getHost(),
+            'srv.host' => gethostname(),]);
         $this->handle = pg_connect($url);
+        pinba_timer_stop($pinbaHandle);
         if ($this->handle === false) {
             $msg = sprintf('Unable to connect to PostgreSQL server %s:%s', $dbInfo->getHost(), $dbInfo->getPort());
             throw new DbConnectionException($msg, DbConnectionException::CAN_NOT_CONNECT_TO_DB);
