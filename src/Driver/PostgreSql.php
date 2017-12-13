@@ -37,7 +37,7 @@ class PostgreSql implements DriverInterface
         $url = http_build_query($params, '', ' ');
         $url .= ' options=\'--client_encoding=UTF8\' connect_timeout=5';
         $pinbaHandle = pinba_timer_start([
-            'type' => 'connect',
+            'type' => 'db.connect',
             'db.host' => $dbInfo->getHost(),
             'srv.host' => gethostname(),]);
         $this->handle = pg_connect($url);
